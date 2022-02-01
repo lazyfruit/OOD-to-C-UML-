@@ -1,4 +1,7 @@
 #include<iostream>
+#include<conio.h>
+#include<Windows.h>
+#include<chrono>
 using namespace std;
 using std::cin;
 using std::cout;
@@ -100,8 +103,79 @@ public:
 	}
 };
 
+class Car
+{
+	Tank tank;
+	Engine engine;
+	bool driver_inside;//Водитель в машине
+public:
+	Car(double engine_consumtion, unsigned int tank_volume) :engine(engine_consumtion), tank(tank_volume)
+	{
+		driver_inside = false;
+		cout << "Your car is ready to go\t" << this << endl;
+	}
+	~Car()
+	{
+		cout << "Your car is over" << this << endl;
+	}
+	void fill(double fuel)
+	{
+		tank.fill(fuel);
+	}
+	void start_engine()
+	{
+		if (tank.get_fuel_level())engine.start();
+	}
+	void stop_engine()
+	{
+		engine.stop();
+	}
+	void get_in()
+	{
+		driver_inside = true;
+	}
+	void get_out()
+	{
+		driver_inside = false;
+	}
+	void controle()
+	{
+		char key;
+		do
+		{
+			key = _getch();
+			switch (key)
+			{
+			case 13://Сесть в машину по Enter. Нужно отобразить панель приборов.
+				break;
+			case'F':case'f'://Заправить машину
+				double fuel;
+				cout << "Сколько выхотите заправить?"; cin >> fuel;
+				fill(fuel);
+				break;
+			case'I':case'i'://Зажигание (ignition) - завести машину
+				break;
+			}
+		} while (key != 27);
+	}
+	void control_panel()
+	{
+		while (driver_inside)
+		{
+			cout << "Fuel level: " << tank.get_fuel_level() << " liters.\n";
+			cout << "Engine is " << (engine.start() ? "started" : "stopped") << endl;
+		}
+	}
+	void info()
+	{
+		tank.info();
+		engine.info();
+	}
+};
+
 //#define TANK_CHECK
-#define ENGINE_CHECK
+//#define ENGINE_CHECK
+#define CAR_CHECK
 
 void main()
 {
@@ -124,4 +198,8 @@ void main()
 	engine.info();
 #endif // ENGINE_CHECK
 
+#ifdef CAR_CHECK
+	Car BMW(8, 80);
+	BMW.info();
+#endif // CAR_CHECK
 }
