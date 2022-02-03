@@ -137,13 +137,16 @@ public:
 	}
 	void start_engine()
 	{
-		if (tank.get_fuel_level())engine.start();
-		control.engine_idle_thread = std::thread(&Car::engine_idle, this);
+		if (tank.get_fuel_level())
+		{
+			engine.start();
+			control.engine_idle_thread = std::thread(&Car::engine_idle, this);
+		}
 	}
 	void stop_engine()
 	{
 		engine.stop();
-		control.engine_idle_thread.join();
+		if (control.engine_idle_thread.joinable())control.engine_idle_thread.join();
 	}
 	void get_in()
 	{
@@ -153,7 +156,7 @@ public:
 	void get_out()
 	{
 		driver_inside = false;
-		control.panel_thread.join();//Высвобождаем поток метода control_panel
+		if (control.engine_idle_thread.joinable())control.panel_thread.join();//Высвобождаем поток метода control_panel
 		system("CLS");
 		cout << "You are out of car." << endl;
 	}
@@ -185,13 +188,16 @@ public:
 				fill(fuel);
 				break;
 			case'I':case'i'://Зажигание (ignition) - завести машину
-				if (engine.start())stop_engine();
+				if (engine.started())stop_engine();
 				else start_engine();
 				break;
 			case Escape:
-				if(control.panel_thread.joinable())get_out();
+				//if(control.panel_thread.joinable())get_out();
+				stop_engine();
+				get_out();
 				break;
 			}
+			
 		} while (key != Escape);
 	}
 	void engine_idle()
